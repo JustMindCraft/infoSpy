@@ -1,9 +1,8 @@
 import Layout from "../components/Layout";
-import LastestPosts from "../components/LatestPosts";
 
 export default () => (
   <Layout>
-    <LastestPosts />
+    <h1>系统暂时关闭了登录</h1>
   </Layout>
   
 )
