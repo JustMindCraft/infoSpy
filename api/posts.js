@@ -1,10 +1,7 @@
 const { RootNode, now } = require("../gunDB");
-const { putPostBody } = require("./post_body");
-const { linkTagsToOnePost, lintPostsToOneTag } =  require("./post_tag");
-const { createTag } =  require("./tags");
 
 
- async function  createPost(
+ async function  putPost(
     postParams={
         title: "未命名标题",
         body: "",
@@ -12,11 +9,12 @@ const { createTag } =  require("./tags");
         cover: "",
         who: "",
         isFrame: false,
-        status: 'published'
+        status: 'published',
+        id: require("uuid/v4")(),
     },
     cb
 ){
-    const uuid = require("uuid/v4")();
+    const uuid = postParams.id;
     try {
         await RootNode.get("posts/"+uuid).get('title').put(postParams.title);
         await RootNode.get("posts/"+uuid).get('cover').put(postParams.cover);
@@ -27,69 +25,58 @@ const { createTag } =  require("./tags");
         await RootNode.get("posts/"+uuid).get('who').put(postParams.who);
         await RootNode.get("posts/"+uuid).get('isFrame').put(postParams.isFrame);
         await RootNode.get("posts/"+uuid).get('status').put(postParams.status);
-        await RootNode.get("posts").set(RootNode.get("posts/"+uuid))
+        let posts_count = await RootNode.get("posts_count");
+        if(!posts_count){
+            posts_count = 0;
+        }
+        await RootNode.get("posts_count").put(posts_count+1);
+        posts_count++;
+
+        await RootNode.get("posts_index/"+posts_count.toString()).put((await RootNode.get("posts/"+uuid)).id);
+        await RootNode.get("posts_index/body").get(uuid).put({id: uuid, body: postParams.body});//用于搜索
+        await RootNode.get("posts_index/title").get(uuid).put({id: uuid, title: postParams.title});
+        await RootNode.get("post_bodys/"+uuid).put(postParams.body);
+        await RootNode.get("post_titles/"+uuid).put(postParams.title);
+        await RootNode.get("post_visited/"+uuid).put(0);
+        for (let index = 0; index < postParams.tags.length; index++) {
+            const tag = postParams.tags[index];
+            await RootNode.get("post_tags/"+uuid).get(index).put({index, tag});
+            await RootNode.get("tags/"+tag).put({tag, createdAt: now(), isTop: false});//用于判断tag是否存在
+            let  tags_count = await RootNode.get("tags_count");//当前标签数量
+            if(!tags_count){
+                tags_count = 0;
+            }
+            tags_count++;
+            await RootNode.get("tags_count").put(tags_count);//当前标签数量加一
+            await RootNode.get("tags_index/"+tags_count).put(await RootNode.get("tags/"+tag));
+            await RootNode.get("tag_is_top/").get(tag).put(false);//默认tag
+            let tag_posts_count = await RootNode.get("tag_posts_count/"+tag);//当前标签有文章的数量
+            if(!tag_posts_count){
+                tag_posts_count = 0;
+            }
+            tag_posts_count++;
+            await RootNode.get("tag_posts_count/"+tag).put(tag_posts_count);
+
+            await RootNode.get("tag_posts/"+"/"+tag+"/"+tag_posts_count).put(uuid);//用于判断搜索post是否存在
+            console.log("标签情况==============================");
+            
+            console.log({
+                tag_posts_count,
+                postId: await RootNode.get("tag_posts/"+"/"+tag+"/"+tag_posts_count),
+                tag,
+            });
+            console.log("标签情况==============================");
+
+            
+        }
+        cb(posts_count, null);
     } catch (error) {
         cb(null, error);
     }
    
-    await putPostBody(uuid, postParams.body, async (rlt, err)=>{
-        if(rlt){
-            await linkTagsToOnePost(uuid, postParams.tags);
-            for (let index = 0; index < postParams.tags.length; index++) {
-                const tag = postParams.tags[index];
-                await createTag(tag, (rlt, err)=>{
-                    console.log("创建标签情况", rlt, err);
-                    
-                });
-                await lintPostsToOneTag(tag, [uuid]);
-                
-            }
-            return cb(uuid, err);
-        }
-        if(err){
-            return cb(false, err);
-        }
-    })
 }
 
- async function updatePost(uuid,  postParams={
-    title: "未命名标题",
-    body: "",
-    tags: [],
-    cover: "",
-},
-cb){
-    try {
-        await RootNode.get("posts/"+uuid).get('title').put(postParams.title);
-        await RootNode.get("posts/"+uuid).get('cover').put(postParams.cover);
-        await RootNode.get("posts/"+uuid).get('createdAt').put(now());
-        await RootNode.get("posts/"+uuid).get('updatedAt').put(now());
-        await RootNode.get("posts/"+uuid).get('visited').put(0);
-        await RootNode.get("posts/"+uuid).get('id').put(uuid);
-        await RootNode.get("posts/"+uuid).get('who').put(postParams.who);
-        await RootNode.get("posts/"+uuid).get('isFrame').put(postParams.isFrame);
-        await RootNode.get("posts/"+uuid).get('status').put(postParams.status);
-        await RootNode.get("posts").set(RootNode.get("posts/"+uuid));
-    } catch (error) {
-        cb(null, error);
-    }
-   
-    await putPostBody(uuid, postParams.body, async (rlt, err)=>{
-        if(rlt){
-            await linkTagsToOnePost(uuid, postParams.tags);
-            for (let index = 0; index < postParams.tags.length; index++) {
-                const tag = postParams.tags[index];
-                await createTag(tag);
-                await lintPostsToOneTag(tag, [uuid]);
-                
-            }
-            return cb(uuid, err);
-        }
-        if(err){
-            return cb(false, err);
-        }
-    })
-}
+
 
  async function addPostReadTimes(id,cb){
     return RootNode.get("posts/"+id).get('visited').once((data,key)=>{
@@ -113,30 +100,33 @@ cb){
         })
     })
 }
- async function getPostReadTimes(id,cb){
-    return RootNode.get("posts/"+id).get('visited').once((data,key)=>{
-        return cb(data,key);
-    })
+
+async function getPostsByTag(page, pagesize){
+    
 }
 
- function getPosts(condition, cb){
-    return RootNode.get("posts").map(condition).once((data, key)=>{
-        
-        if(!data){
-            return cb(null, key);
+ async function getPosts(page, pagesize){
+    const posts_count = await RootNode.get("posts_count");
+    const posts = [];
+    for (let index = 0; index < pagesize; index++) {
+
+        const postIndex =  posts_count-((page-1)*pagesize)-index;
+        const post_id = await RootNode.get("posts_index/"+postIndex);
+        const post = await RootNode.get("posts/"+post_id);
+        if(!post){
+            continue;
         }
-        return cb(data, key);
-    })
+        if(posts && post.id){
+            posts.push(post);
+        }
+    }
+    return posts;
+    
 }
 
 
- function getPostById(id, cb){
-    return getPosts(
-        post => post.id === id ? post: undefined,
-        (data, key) => {
-            return cb(data,key)
-        }
-    )
+ async function getPostById(id){
+    return await RootNode.get("posts/"+id);
 }
 
 
@@ -183,12 +173,10 @@ cb){
 
 module.exports = {
     getPostById,
-    getPostReadTimes,
     getPostsByTagName,
-    createPost,
+    putPost,
     searchPosts,
     addPostReadTimes,
     getPosts,
-    updatePost,
 }
 

@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default () => {
    
     return (
@@ -13,37 +15,40 @@ export default () => {
                 <div className="dropdown-content" style={{
                     textAlign: "center"
                 }}>
-                    <a  className="dropdown-item">
+                    <a href="/" className="dropdown-item">
                        首页
                     </a>
-                    <a className="dropdown-item">
+                    <a href="/search" className="dropdown-item">
                        搜索
                     </a>
-                    <a  className="dropdown-item ">
-                        文章
+                    <a href="/posts?tag=前端" className="dropdown-item ">
+                        前端
                     </a>
-                    <a  className="dropdown-item ">
-                        推荐
+                    <a  href="/posts?tag=Android" className="dropdown-item ">
+                        Android
                     </a>
-                    <a  className="dropdown-item ">
-                        发现
+                    <a href="/posts?tag=iOS" className="dropdown-item ">
+                        IOS
                     </a>
-                    <a  className="dropdown-item ">
-                        音乐
+                    <a href="/posts?tag=瞎推荐" className="dropdown-item ">
+                        瞎推荐
                     </a>
-                    <a  className="dropdown-item ">
-                        热门
+                    <a href="/posts?tag=App" className="dropdown-item ">
+                        APP
+                    </a>
+                    <a href="/posts?tag=福利" className="dropdown-item ">
+                        妹纸
                     </a>
                    
                     <hr className="dropdown-divider" />
-                    <a  className="dropdown-item">
+                    <a href="/login"  className="dropdown-item">
                         登录
                     </a>
-                    <a  className="dropdown-item">
+                    <a href="/reg" className="dropdown-item">
                         注册
                     </a>
                     <hr className="dropdown-divider" />
-                    <a  className="dropdown-item">
+                    <a href="/about" className="dropdown-item">
                         关于
                     </a>
                     

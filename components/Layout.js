@@ -3,7 +3,6 @@ import './Layout.css';
 import Link from 'next/link';
 import { initClientState } from '../api/client';
 import { RootNode } from '../gunDB';
-import Loader from './Loader';
 import DropDown from './DropDown';
 
 
@@ -123,8 +122,8 @@ class Layout extends React.Component{
                 <Head>
                     <title>乐多多</title>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-                    <meta http-equiv="Cache-Control" content="no-siteapp" />
-                    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+                    <meta httpEquiv="Cache-Control" content="no-siteapp" />
+                    <meta httpEquiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
                     <meta name="keywords" content="技术 妹纸　安卓 Android IOS 苹果 前端　技术　IT 文章 主题 创业 互联网 区块链" />
                     <meta name="description" content="乐多多给你快乐多，知识多,朋友多，资源多" />
                     <meta name="author" content="simon simontaosim@protonmail.com" />
@@ -152,13 +151,15 @@ class Layout extends React.Component{
                         <div className="level-item is-hidden-tablet">
                             <DropDown />
                         </div>
+                        <p className="level-item is-hidden-mobile"><Link href="/"><a>首页</a></Link></p>
                         <p className="level-item is-hidden-mobile"><Link href="/search"><a>搜索</a></Link></p>
-                        <p className="level-item is-hidden-mobile"><Link href="/posts"><a>前端</a></Link></p>
-                        <p className="level-item is-hidden-mobile"><Link href="/recommend"><a>Android</a></Link></p>
-                        <p className="level-item is-hidden-mobile"><Link href="/discover"><a>IOS</a></Link></p>
-                        <p className="level-item is-hidden-mobile"><Link href="/musics"><a>瞎推荐</a></Link></p>
-                        <p className="level-item is-hidden-mobile"><Link href="/hot"><a>拓展</a></Link></p>
-                        <p className="level-item is-hidden-mobile"><Link href="/hot"><a>妹纸</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=前端"><a>前端</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=Android"><a>Android</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=iOS"><a>IOS</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=瞎推荐"><a>瞎推荐</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=拓展资源"><a>拓展</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=App"><a>APP</a></Link></p>
+                        <p className="level-item is-hidden-mobile"><Link href="/posts?tag=福利"><a>妹纸</a></Link></p>
                        
                         <p className="level-item is-hidden-mobile"><Link href="/login"><a>登录</a></Link></p>
                         <p className="level-item is-hidden-mobile"><Link href="/reg"><a>注册</a></Link></p>
@@ -170,10 +171,11 @@ class Layout extends React.Component{
                 <hr style={{marginTop: 0}}></hr>
                 <div className="container" style={{
                     width: "100%",
-                    overflowY: 'auto'
+                    overflowY: 'hidden',
+                    height: "100%"
                 }}>
 
-                    {loading && <Loader>加载中</Loader> }
+                   
                     {
                         this.props.children
                     }

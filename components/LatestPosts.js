@@ -1,5 +1,7 @@
 import { getPosts } from '../api/posts';
 import PostList from './PostList';
+import Loader from './Loader';
+
 
 export default class LastestPosts extends React.Component {
 
@@ -10,88 +12,87 @@ export default class LastestPosts extends React.Component {
             loading: true,
             adding: false,
             lastPostTime: 0,
-            addingCount: 0
+            addingCount: 0,
+            page: 1,
+            pagesize: 10
         }
     }
-   
-    getPrevTimePost = (limitBefore, limitAfter) =>{
-        //获取过去五分钟的post
-        
-        const { posts } = this.state;
-        let count = 0;
-        return  getPosts(
-            post => {
-                if(!post){
-                    return undefined;
-                }
-               
-                
-                if(post.createdAt<=limitBefore && post.createdAt>=limitAfter ){
-                    return post
-                }
-                return undefined
-            },
-            (data, key) => {
-                
-                if(data){
-                    count = count+ 1;
-                    
-                    posts.push(data);
-                    return this.setState({
-                        posts,
-                        loading: false,
-                        adding: false,
-                        lastPostTime: limitAfter,
-                        addingCount: count,
-                    })
-                    
-                }
-              
-            }
-        )
-
-    }
     
-    componentDidMount(){
-        this.getPrevTimePost((new Date()).getTime(), (new Date()).getTime()-1000*60*30);
-        
-       
-    }
-    handleOnScroll = e => {
-        const { posts, lastPostTime, addingCount } = this.state;
-        const scrollTop = e.target.scrollTop || window.pageYOffset || document.body.scrollTop;
-        if(e.target.scrollHeight == e.target.clientHeight + scrollTop ) {
+    async componentDidMount(){
+        const { page, pagesize } = this.state;
+        this.setState({
+            posts: [],
+            loading: true,
+            adding: false,
+            tag: "",
+        })
+        const posts = await getPosts(page, pagesize);
+        this.setState({
+            posts,
+            loading: false,
             
+        })
+        
+    }
+    handleOnScroll = async e => {
+        const { posts, page, pagesize } = this.state;
+        const scrollTop = e.target.scrollTop || window.pageYOffset || document.body.scrollTop;
+
+        // console.log(scrollTop, e.target.scrollHeight, e.target.clientHeight);
+        
+        
+        
+        if(e.target.scrollHeight == e.target.clientHeight + scrollTop ) {
             this.setState({
                 adding: true,
-                addingCount: 0,
             })
-            const backTime = addingCount===0? 1000*60*60*2 : 1000*60*5;
-            this.getPrevTimePost(lastPostTime, lastPostTime-backTime);
-        }    
+            const newPosts = await getPosts(page+1,pagesize);
+            this.setState({
+                posts: posts.concat(newPosts),
+                loading: false,
+                page: page+1,
+                adding: false,
+            })
+
+
+        
+        } 
+        if(scrollTop===0){
+            this.setState({
+                adding: true,
+            })
+            const newPosts = await getPosts(1,10);
+            return this.setState({
+                posts: newPosts,
+                loading: false,
+                page: 1,
+                adding: false,
+            })
+        }   
         
         
     }
 
     render(){
-        const { posts, loading, adding, addingCount } = this.state;
+        const { posts, loading, adding } = this.state;
 
         return (
-            <div onScroll={this.handleOnScroll} style={{height: "90%", overflowY: "scroll"}}>
+            <React.Fragment>
                 {
-                    !loading && 
-                    <PostList list={posts} />
+                    adding &&  
+                    <div className="has-text-centered blue">加载更多中......</div>
                 }
-                <br/>
-                <br/>
-                <br/>
+                {
+                    loading ?  <Loader /> :
+                    <PostList list={posts} handleOnScroll={this.handleOnScroll} />
+                }
                 {
                     adding &&  
                     <div className="has-text-centered blue">加载更多中......</div>
                 }
                
+            </ React.Fragment>
                     
-            </div>
            
         )
     }

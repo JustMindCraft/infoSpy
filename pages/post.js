@@ -1,10 +1,13 @@
 import Layout from "../components/Layout";
 import { getPostById, addPostReadTimes } from '../api/posts';
+import { RootNode } from '../gunDB/index.js'
 import { getPostBodyById } from '../api/post_body';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import Head from 'next/head';
 import renderHTML from 'react-render-html';
+import Link from 'next/link';
+
 
 export default  class PostPage extends React.Component {
   constructor(props){
@@ -16,7 +19,7 @@ export default  class PostPage extends React.Component {
       who: "",
       createdAt: "",
       visited: 0,
-      body: ""
+      body: "", tags: []
     }
   }
 
@@ -37,17 +40,23 @@ export default  class PostPage extends React.Component {
       }
       
 
-      getPostById(parsed.id, (data, key)=>{
-        this.setState({
-          ...data,
-          loading: false,
-        })
-       
-        addPostReadTimes(data.id, (rlt, err)=>{
-          console.log(rlt, err);
-          
-        })
-        
+      const data = await getPostById(parsed.id);
+      this.setState({
+        ...data,
+        loading: false,
+      })
+      const { tags } = this.state;
+      RootNode.get("post_tags/"+parsed.id).map().once((data,key)=>{
+         tags.push(data.tag);
+         this.setState({
+           tags,
+         })
+      });
+
+      const visited =  await RootNode.get("post_visited/"+parsed.id);
+      await RootNode.get("post_visited/"+parsed.id).put(visited+1);
+      this.setState({
+        visited: visited+1,
       })
       
     }
@@ -55,7 +64,7 @@ export default  class PostPage extends React.Component {
   }
 
   render() {
-    const { loading, bodyLoading,title,  who, createdAt, body, visited } = this.state;
+    const { loading, bodyLoading,title,  who, createdAt, body, visited, tags } = this.state;
     
     
     if(loading){
@@ -71,14 +80,27 @@ export default  class PostPage extends React.Component {
             <title>{title}</title>
                    
         </Head>
-        <section className="hero">
+        <section className="hero" style={{
+          overflowY: "auto",
+          height: "90%",
+        }}>
           <div className="hero-body">
-            <div className="container"  style={{width: "100%"}}>
+            <div className="container"  style={{width: "100%", overflowY: "auto"}}>
               <h1 className="title has-text-centered">
                 {title}
               </h1>
                 <h2 className="subtitle has-text-centered">
                  {who}---------------{moment(createdAt).format('YYYY 年 MMMM , h:mm:ss a')}
+                </h2>
+                <h2 className="subtitle has-text-centered">
+                  {
+                    tags.map((tag, index)=>
+                    <Link key={index} href={"/posts?tag="+tag}>
+                      <a><span className="tag is-info" >{tag}</span></a>
+                    </Link>
+                     
+                      )
+                  }
                 </h2>
               { bodyLoading && <progress className="progress is-large is-info" max="100">60%</progress>}
               <article className="article">

@@ -1,5 +1,8 @@
 const withCSS = require('@zeit/next-css');
 module.exports = withCSS({
+  node: {
+    fs: 'empty'
+  },
   exportPathMap: function() {
     return {
       '/': { page: '/' },
@@ -14,9 +17,6 @@ module.exports = withCSS({
       '/recommend': { page: '/recommend' },
       '/search': { page: '/search' },
     }
-  },
-  node: {
-    fs: 'empty'
   }
 });
    

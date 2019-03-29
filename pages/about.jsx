@@ -1,9 +1,13 @@
 import Layout from "../components/Layout";
 import { getTags } from '../api/tags';
+import { RootNode } from '../gunDB/index';
 
 export default class AboutPage extends React.Component {
   componentDidMount(){
-    
+    RootNode.get("posts/index").get("33").once((data,key)=>{
+      console.log(key, data);
+      
+    })
   }
   render(){
     return (

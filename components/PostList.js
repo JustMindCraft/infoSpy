@@ -14,16 +14,17 @@ class PostList extends React.Component{
         }
         
         return (
-            <section style={{
+            <section className="section"  onScroll={this.props.handleOnScroll} style={{
                 display: 'flex',
                 flexWrap: "wrap",
                 flexDirection: 'row',
-                justifyContent: "space-around",
+                justifyContent: "space-between",
                 alignItems: "center",
+                minHeight: 568, height: "90%", overflowY: "scroll"
             }}>
                 {
                     list.map((item, index)=>
-                        <Card key={index} id={item.id} title={item.title} cover={item.cover} createdAt={item.createdAt}  visited={item.visited} />
+                        <Card key={index} id={item.id} title={item.title} cover={item.cover} createdAt={item.createdAt}  visited={item.visited} noImage={true}/>
                         )
                 }
             </section>
