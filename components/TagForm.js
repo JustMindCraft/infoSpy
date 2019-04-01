@@ -60,7 +60,7 @@ class TagForm extends React.Component {
                         <label className="label">标签</label>
                         <div className="control" style={{display: 'flex'}}>
                             <input value={text} className="input" type="text" placeholder="为文章添加标签"  onChange={this.handleTextChange} />
-                            <button type="button" className="button">添加</button>
+                            <button type="button" type="submit" className="button">添加</button>
                             
                         </div>
                     </div>

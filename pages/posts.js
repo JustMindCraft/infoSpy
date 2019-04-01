@@ -1,8 +1,7 @@
 import Layout from "../components/Layout";
-import { RootNode} from '../gunDB/index.js';
 import PostList from "../components/PostList";
-import { withRouter } from 'next/router';
 import Loader from "../components/Loader";
+import getBrowserGun from "../gunDB/browser";
 
 class Posts extends React.Component {
 
@@ -14,50 +13,53 @@ class Posts extends React.Component {
             adding: false,
             tag: "",
             page: 1,
-            pagesize: 15
+            pagesize: 38
         }
     }
 
+    getTag(){
+        const queryString = require('query-string');
+        const parsed = queryString.parse(window.location.search);
+        const tag = parsed.tag;
+        return tag;
+    }
+
     async componentDidMount(){
-        const { router } = this.props;
-        const tag = router.query.tag;
-        
+        const tag = this.getTag();
         this.setState({
             posts: [],
             loading: true,
             adding: false,
             tag,
             page: 1,
+            proccess:false,
+            changed: false,
+
         })
         console.log("didmount");
         
-        await this.getTagPosts(1, 15, tag);
+        await this.getTagPosts(1, 38, tag);
         
     }
 
     async componentWillReceiveProps(nextProps){
-        const { router } = nextProps;
-        const tag = router.query.tag
-        
-        this.setState({
-            posts: [],
-            loading: true,
-            adding: false,
-            tag,
-            page: 1
-        });
-        await this.getTagPosts(1,15, tag);
-       
-        
+        if(this.props!== nextProps){
+            window.location.reload();
+        }
     }
 
     getTagPosts = async (page, pagesize, tag) => {
-        console.log({page});
+
+        const instance = getBrowserGun(window)
+        const { RootNode } = instance;
         
         const tag_posts_count = await RootNode.get("tag_posts_count/"+tag);
         const { posts } = this.state;
+        this.setState({
+            proccess: true,
+        })
         for (let index = 0; index < pagesize; index++) {
-            
+           
             const tagIndex =  tag_posts_count-((page-1)*pagesize)-index;
             const postId = await RootNode.get("tag_posts/"+"/"+tag+"/"+tagIndex)
             const post = await RootNode.get("posts/"+postId)
@@ -70,27 +72,42 @@ class Posts extends React.Component {
             }
             this.setState({
                 posts,
-                loading: false,
                 adding: false,
+                loading: false,
                 tag,
+               
             })
         }
+        this.setState({
+            proccess: false,
+        })
+        
     }
     componentWillMount(){
         console.log("leave");
+        this.setState(
+            {
+                posts: [],
+                loading: true,
+                adding: false,
+                tag: "",
+                page: 1,
+                proccess:false,
+                changed: false,
+    
+            }
+        )
         
     }
     handleOnScroll = async e => {
         const { page, pagesize } = this.state;
         const scrollTop = e.target.scrollTop || window.pageYOffset || document.body.scrollTop;
-        const { router } = this.props;
-        const tag = router.query.tag;
         
         if(e.target.scrollHeight == e.target.clientHeight + scrollTop ) {
             this.setState({
                 adding: true,
             })
-           await this.getTagPosts(page+1, pagesize, tag);
+           await this.getTagPosts(page+1, pagesize, this.getTag());
            return this.setState({
                 adding: false,
                 page: page+1,
@@ -99,12 +116,12 @@ class Posts extends React.Component {
 
         } 
 
-        if(scrollTop===0){
+        if(scrollTop===1){
            this.setState({
                posts: [],
                adding: true,
            })
-           await this.getTagPosts(1,10, tag);
+           await this.getTagPosts(1,20, this.getTag());
            return this.setState({
                 adding: false,
                 page: 1,
@@ -116,7 +133,15 @@ class Posts extends React.Component {
     }
 
     render(){
-        const { posts, tag, loading, adding } = this.state;
+        const { posts, tag, loading, adding, changed } = this.state;
+        if(changed){
+            return(
+                <Layout>
+                    <Loader />
+                </Layout>
+            ) 
+                
+        }
         return (
             <Layout>
                 <h1 className="title">"{tag}"：</h1>
@@ -138,4 +163,4 @@ class Posts extends React.Component {
     }
 }
 
-export default withRouter(Posts)
+export default Posts;

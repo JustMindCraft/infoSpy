@@ -1,6 +1,6 @@
-import { getPosts } from '../api/posts';
 import PostList from './PostList';
 import Loader from './Loader';
+import { getPosts } from '../gunApi/posts';
 
 
 export default class LastestPosts extends React.Component {
@@ -14,9 +14,11 @@ export default class LastestPosts extends React.Component {
             lastPostTime: 0,
             addingCount: 0,
             page: 1,
-            pagesize: 10
+            pagesize: 38
         }
     }
+
+   
     
     async componentDidMount(){
         const { page, pagesize } = this.state;
@@ -26,12 +28,18 @@ export default class LastestPosts extends React.Component {
             adding: false,
             tag: "",
         })
-        const posts = await getPosts(page, pagesize);
+        const posts = await getPosts(1,25);
+        console.log(posts);
+        
         this.setState({
             posts,
             loading: false,
-            
         })
+        if(posts.length === 0 || !posts){
+            setTimeout(()=>{
+                window.location.reload();
+            }, 1234)
+        }
         
     }
     handleOnScroll = async e => {
@@ -61,7 +69,7 @@ export default class LastestPosts extends React.Component {
             this.setState({
                 adding: true,
             })
-            const newPosts = await getPosts(1,10);
+            const newPosts = await getPosts(1,38);
             return this.setState({
                 posts: newPosts,
                 loading: false,
@@ -84,7 +92,7 @@ export default class LastestPosts extends React.Component {
                 }
                 {
                     loading ?  <Loader /> :
-                    <PostList list={posts} handleOnScroll={this.handleOnScroll} />
+                    <PostList list={posts}  />
                 }
                 {
                     adding &&  

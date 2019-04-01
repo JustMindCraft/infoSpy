@@ -10,12 +10,11 @@ require('gun/nts');
 
 
 
-const sea = Gun.SEA;
 const gun = Gun(config.hosts);
+const sea = Gun.SEA;
 const RootNode = gun.get(config.rootId);
 const now = () => {
-    return new Date((Gun).state()).getTime()``
-    ;
+    return new Date((Gun).state()).getTime();
 }
 
 module.exports = {

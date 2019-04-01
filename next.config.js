@@ -7,15 +7,13 @@ module.exports = withCSS({
     return {
       '/': { page: '/' },
       '/about': { page: '/about' },
-      '/admin': { page: '/admin' },
-      '/discover': { page: '/discover' },
-      '/hot': { page: '/hot' },
-      '/music': { page: '/music' },
-      '/musics': { page: '/musics' },
       '/posts': { page: '/posts' },
       '/post': { page: '/post' },
-      '/recommend': { page: '/recommend' },
       '/search': { page: '/search' },
+      '/login': { page: '/login' },
+      '/reg': { page: '/reg' },
+      '/dashboard': { page: '/dashboard' },
+      '/new_post': { page: '/new_post' },
     }
   }
 });

@@ -1,143 +1,163 @@
 import Layout from "../components/Layout";
 import Loader from "../components/Loader";
-import { getPosts } from '../api/posts';
 import PostList from "../components/PostList";
+import getBrowserGun from "../gunDB/browser";
 
-
-let timer = null;
+let count = 0;
 export default class SearchPage extends React.Component{
   constructor(props){
     super(props);
     this.state ={
       loading: false,
-      input: false,
+      input: true,
       text: "",
-      titlePosts: [],
+      posts: [],
       searchWait: 0,
       textHistory: [],
+      adding: false,
+      page: 1,pagesize: 28,
+      postIds: [],
     }
   }
 
-  componentDidMount(){
-   
-  }
 
-
-
-  
-  searchTitle = (text) =>{
-    const { titlePosts } = this.state;
-      getPosts(
+  search = async (text) => {
+    if(window){
+      const instance = getBrowserGun(window);
+      const { RootNode } = instance;
+      const posts_count = await RootNode.get("posts_count");
+      const {posts, page, pagesize, postIds} = this.state;
+      let limit = pagesize;
+      count = (page-1)*limit;
+      RootNode.get("posts")
+      .map(
         post => {
           if(!post){
+            limit++;
             return undefined;
           }
-          if(text===""){
+          if(!post.id){
+            limit++;
             return undefined;
           }
-          if(post.title.indexOf(text)){
-           
+          if(!post.title){
+            limit++;
+            return undefined;
+          }
+          if(post.status!=="published"){
+            limit++;
+            return undefined;
+          }
+          if(count>(limit*page)){
+            return undefined;
+          }
+          if(count>=posts_count){
+            return undefined;
+          }
+         
+          if(post.title.indexOf(text)>=0){
+              count++;
+              return post;
+          }
+          if(post.body.indexOf(text)>=0){
+            count++;
             return post;
           }
+
           return undefined;
-        },
-        (data, key)=>{
-          
-          if(titlePosts.length> 10){
-           
-            return this.setState({
-              loading: false,
+        }
+      ).once((data,key)=>{
+          if(data){
+            if(posts.includes(data)){
+              return this.setState({
+                posts,
+                loading: false,
+              });
+            }
+            posts.push(data);
+            if(count>(limit*page)){
+              return this.setState({
+                posts,
+                loading: false,
+                page:page+1,
             });
-            
-          }else{
-            titlePosts.unshift(data);
+            }
             return this.setState({
-              titlePosts,
-              loading: false,
+                posts,
+                loading: false,
             })
           }
           
+
         
-          
-          
-        }
-      )
+      })
+    }
   }
 
   
-  componentDidUpdate(preState){
-    const { textHistory, searchWait} = this.state;
-    if(searchWait>=2){
-      clearInterval(timer);
-      console.log(searchWait);
-      
-      
-    }
-  }
+  
+
+  
 
 
-  handleInput = (e)=>{
+
+  handleInput =  async (e)=>{
     
-    const { textHistory } = this.state;
-    textHistory.push(e.target.value)
     this.setState({
       text: e.target.value,
-      input: e.target.value===""? false: true,
-      loading: true,
-      titlePosts: [],
-      searchWait: 0,
-      textHistory,
     });
+  }
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    const {text} = this.state;
+    await this.search(text);
+    this.setState({
+      loading:true,
+      titlePosts: [],
+
+    })
+
    
+  }
 
-    
-    if(e.target.value===""){
-      return false;
-    }
-    let count = 0;
-    timer= setInterval(()=>{
-      count++;
-      this.setState({
-        searchWait: count
-      });
-     
-    }, 1000)
-
-    
-    
-   
-
+  handleOnTitleScroll = async (e) => {
+        const { text} = this.state;
+        const scrollTop = e.target.scrollTop || window.pageYOffset || document.body.scrollTop;
+        
+        if(e.target.scrollHeight == e.target.clientHeight + scrollTop ) {
+          this.setState({
+            loading:false,
+            adding: true,
+          })
+          await this.search(text);
+        } 
+          
+        
   }
 
   render(){
-    const { input, loading, text, titlePosts, textHistory } = this.state;
+    const { loading, text, posts, adding } = this.state;
     
     return (
-      <Layout>
-        <form >
-            <div className="field section">
-              <div className="control">
-                  <input value={text} autoFocus className="input"  type="text" placeholder="搜索：　标题　| 内容　| 标签" onChange={this.handleInput} />
-              </div>
-          </div>
-        </form>
+      <Layout  handleOnScroll={this.handleOnTitleScroll}>
+          <form onSubmit={this.handleSubmit} className="field has-addons" style={{
+            justifyContent: "center"
+          }}>
+                <div className="control">
+                    <input style={{width: "100%"}} value={text} autoFocus className="input"  type="text" placeholder="搜索：　标题　| 内容　| 标签" onChange={this.handleInput} />
+                </div>
+                <div className="control">
+                      <button type="submit" className="button is-info">搜索</button>
+                </div>
+          </form>
+        
         {
-          loading  && <Loader />
+          loading ? <Loader /> : 
+              <PostList list={posts} />
         }
         {
-          input && 
-          <section className="section">
-          <div>
-            <h2>标题：{text}</h2>
-            <PostList list={titlePosts} noImage={true}/>
-          </div>
-          <div>
-            <h2>标签:{text}</h2>
-          </div>
-          <div>
-            <h2>内容:{text}</h2>
-          </div>
-        </section>
+          adding && 
+          <a>加载更多</a>
         }
         
        

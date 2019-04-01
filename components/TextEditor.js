@@ -6,14 +6,6 @@ const ReactQuillWithNoSSR = dynamic(
     ssr: false
   }
 )
-
-
-dynamic(
-    () => import('react-quill/dist/quill.snow.css'),
-    {
-      ssr: false
-    }
-);
 dynamic(
     () => import('./TextEditor.css'),
     {
@@ -24,39 +16,27 @@ dynamic(
 class TextEditor extends React.Component {
     modules = {
         toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-            ['blockquote', 'code-block'],
-          
-            [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-            [{ 'direction': 'rtl' }],                         // text direction
-          
-            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+            [{ 'size': ['small', false, 'large', 'huge'] }],
             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          
-            [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-            [{ 'font': [] }],
-            [{ 'align': [] }],
-          
-            ['clean']                                         // remove formatting button
+            [{ 'color': [] }, { 'background': [] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            ['link', 'image'],
+            [{ 'align': [false, "center", "right"] }],
+            [{ 'color': [false, "red", "blue", "grey", "black", "white"] }], 
+            [{ 'background': [false, "red", "blue", "grey","black", "white"] }],
+            ['clean']
           ]
       }
     
-    formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike', 'blockquote','code-block',
-    'list', 'bullet', 'indent',
-    'link', 'image'
-    ]
+    
 
     render(){
         return (
-            <div>
-                <ReactQuillWithNoSSR modules={this.modules}
-                formats={this.formats} />
-            </div>
+          <React.Fragment>
+                <ReactQuillWithNoSSR value={this.props.value} onChange={this.props.getEditorText} id="max" modules={this.modules}
+                />
+          </React.Fragment>
+          
         )
     }
 }

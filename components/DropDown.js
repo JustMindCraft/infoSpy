@@ -1,13 +1,27 @@
 import Link from 'next/link';
 
+const DownMenuList = [
+    {
+        label: "首页",
+        href: "/"
+    },
+    {
+        label: "搜索",
+        href: "/search"
+    }
+]
+
 export default () => {
    
     return (
 
-        <div className="dropdown is-right is-hoverable">
+        <div className="dropdown is-right isBottom is-hoverable">
             <div className="dropdown-trigger">
-                <span className="icon is-large">
-                    <i className="fas fa-2x fa-bars "></i>
+                <span style={{
+                    opacity: 0,
+                }} className="icon is-large">
+                    {/* <i className="fas fa-2x fa-bars "></i> */}
+                    {/* <i></i> */}
                 </span>
                
             </div>
@@ -15,42 +29,35 @@ export default () => {
                 <div className="dropdown-content" style={{
                     textAlign: "center"
                 }}>
-                    <a href="/" className="dropdown-item">
-                       首页
-                    </a>
-                    <a href="/search" className="dropdown-item">
-                       搜索
-                    </a>
-                    <a href="/posts?tag=前端" className="dropdown-item ">
-                        前端
-                    </a>
-                    <a  href="/posts?tag=Android" className="dropdown-item ">
-                        Android
-                    </a>
-                    <a href="/posts?tag=iOS" className="dropdown-item ">
-                        IOS
-                    </a>
-                    <a href="/posts?tag=瞎推荐" className="dropdown-item ">
-                        瞎推荐
-                    </a>
-                    <a href="/posts?tag=App" className="dropdown-item ">
-                        APP
-                    </a>
-                    <a href="/posts?tag=福利" className="dropdown-item ">
-                        妹纸
-                    </a>
+                {
+                    DownMenuList.map((item,index)=>
+                    <div key={index} className="dropdown-item">
+                        <Link href={item.href} >
+                        <a>{item.label}</a>
+                        </Link>
+                    </div>
+                    )
+                }
                    
                     <hr className="dropdown-divider" />
-                    <a href="/login"  className="dropdown-item">
-                        登录
-                    </a>
-                    <a href="/reg" className="dropdown-item">
-                        注册
-                    </a>
+                    <div className="dropdown-item">
+                    <Link href="/login"  >
+                        <a>登录</a>
+                    </Link>
+                    </div>
+                    <div className="dropdown-item">
+                    <Link href="/reg" >
+                        <a>注册</a>
+                    </Link>
+                    </div>
+                   
                     <hr className="dropdown-divider" />
-                    <a href="/about" className="dropdown-item">
-                        关于
-                    </a>
+                    <div className="dropdown-item">
+                    <Link href="/about" >
+                        <a>关于</a>
+                    </Link>
+                    </div>
+                    
                     
                 </div>
             </div>

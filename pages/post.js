@@ -1,13 +1,24 @@
 import Layout from "../components/Layout";
-import { getPostById, addPostReadTimes } from '../api/posts';
-import { RootNode } from '../gunDB/index.js'
-import { getPostBodyById } from '../api/post_body';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import Head from 'next/head';
 import renderHTML from 'react-render-html';
 import Link from 'next/link';
+import getBrowserGun from "../gunDB/browser";
+import dynamic from 'next/dynamic';
 
+dynamic(
+  () => import('../components/TextEditor.css'),
+  {
+    ssr: false
+  }
+);
+dynamic(
+  () => import('react-quill/dist/quill.snow.css'),
+  {
+    ssr: false
+  }
+);
 
 export default  class PostPage extends React.Component {
   constructor(props){
@@ -19,7 +30,8 @@ export default  class PostPage extends React.Component {
       who: "",
       createdAt: "",
       visited: 0,
-      body: "", tags: []
+      body: "", 
+      tags: []
     }
   }
 
@@ -27,38 +39,47 @@ export default  class PostPage extends React.Component {
     if(window){
       const queryString = require('query-string');
       const parsed = queryString.parse(window.location.search);
-      console.log({parsed});
+      const instance  = getBrowserGun(window);
+      const { RootNode } = instance;
+      console.log(parsed);
       
-      let body = await getPostBodyById(parsed.id);
-      
-
-      if(body){
+      RootNode.get("posts")
+      .map(
+        post=> {
+          if(!post){
+            return undefined;
+          }
+          if(!post.id){
+            return undefined;
+          }
+          if(post.id===parseInt(parsed.id)){
+            return post;
+          }
+          return undefined
+        }
+      )
+      .on( async (data,key)=>{
+        
         this.setState({
+          ...data,
+          loading: false,
           bodyLoading: false,
-          body,
         })
-      }
-      
-
-      const data = await getPostById(parsed.id);
-      this.setState({
-        ...data,
-        loading: false,
+        let visited = await RootNode.get("post_visited/"+key);
+        if(!visited){
+          visited = 0
+        }
+        visited++;
+        RootNode.get("post_visited/"+key).put(visited, ack=>{
+          if(ack.err){
+            console.log(ack);
+            return false;
+          }
+          return this.setState({
+            visited,
+          })
+        })
       })
-      const { tags } = this.state;
-      RootNode.get("post_tags/"+parsed.id).map().once((data,key)=>{
-         tags.push(data.tag);
-         this.setState({
-           tags,
-         })
-      });
-
-      const visited =  await RootNode.get("post_visited/"+parsed.id);
-      await RootNode.get("post_visited/"+parsed.id).put(visited+1);
-      this.setState({
-        visited: visited+1,
-      })
-      
     }
 
   }
@@ -82,7 +103,7 @@ export default  class PostPage extends React.Component {
         </Head>
         <section className="hero" style={{
           overflowY: "auto",
-          height: "90%",
+          height: "100%",
         }}>
           <div className="hero-body">
             <div className="container"  style={{width: "100%", overflowY: "auto"}}>
@@ -103,7 +124,7 @@ export default  class PostPage extends React.Component {
                   }
                 </h2>
               { bodyLoading && <progress className="progress is-large is-info" max="100">60%</progress>}
-              <article className="article">
+              <article className="article" style={{textAlign: "left", fontSize: "27px"}}>
                 {body? renderHTML(body): renderHTML("<span></span>")}
               </article>
               <div>阅读量({visited})</div>
