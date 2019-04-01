@@ -147,6 +147,7 @@ class Layout extends React.Component{
                 <section className="hero is-fullheight">
                     <div className="hero-head" style={{
                         paddingBottom: 12,
+                        zIndex:4444
                     }}>
                         <header className="navbar">
                             <div className="container">
@@ -203,9 +204,15 @@ class Layout extends React.Component{
 
                     <div className="hero-body" style={{flex: 1,height: "80%", padding:2}}>
                         <div onScroll={this.props.handleOnScroll} className="container has-text-centered" style={{
-                            height: "100%",
+                            height: "-webkit-fill-available",
+                            maxHeight: "1366px",
                             overflow: "auto",
                             width: "100%",
+                            marginTop: "5%",
+                            marginBottom: 80,
+                            paddingBottom: 20,
+                            position: 'relative',
+                            top: 80
                         }}>
                            
                             {
