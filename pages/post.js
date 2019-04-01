@@ -85,7 +85,7 @@ export default  class PostPage extends React.Component {
   }
 
   render() {
-    const { loading, bodyLoading,title,  who, createdAt, body, visited, tags } = this.state;
+    const { loading, bodyLoading,title,  author, createdAt, body, visited, tags } = this.state;
     
     
     if(loading){
@@ -111,7 +111,7 @@ export default  class PostPage extends React.Component {
                 {title}
               </h1>
                 <h2 className="subtitle has-text-centered">
-                 {who}---------------{moment(createdAt).format('YYYY 年 MMMM , h:mm:ss a')}
+                 {author}---------------{moment(createdAt).format('YYYY 年 MMMM , h:mm:ss a')}
                 </h2>
                 <h2 className="subtitle has-text-centered">
                   {
