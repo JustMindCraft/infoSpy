@@ -133,7 +133,7 @@ class Layout extends React.Component{
                     <meta name="author" content="simon simontaosim@protonmail.com" />
                     <meta name="format-detection" content="telephone=no" /> 
                     {/* 百度禁止转码 */}
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css" integrity="sha256-8B1OaG0zT7uYA572S2xOxWACq9NXYPQ+U5kHPV1bJN4=" crossOrigin="anonymous" />
+                    <link rel="stylesheet" href="https://cdn.bootcss.com/bulma/0.7.4/css/bulma.min.css" rel="stylesheet"></link>
                     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.0/css/all.min.css" integrity="sha256-zuYfqYVhondYLhMhEA58/2PA/prdFq3gT72DxNwSD4M=" crossOrigin="anonymous" />
                     <script src="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1553940556/cdn/gun/gun.js"></script>
                     <script src="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1553940556/cdn/gun/sea.js"></script>
@@ -201,12 +201,15 @@ class Layout extends React.Component{
 
                     {/* <!-- Hero content: will be in the middle --> */}
 
-                    <div className="hero-body" style={{flex: 1,height: "80%", padding:2}}>
-                        <div onScroll={this.props.handleOnScroll} className="container has-text-centered" style={{
-                            height: "100%",
-                            overflow: "auto",
-                            width: "100%",
+                    <div onScroll={this.props.handleOnScroll} className="hero-body" 
+                        style={{
+                            flex: 1,
+                            height: "100%", 
+                            padding:2,
+                            overflowY: "scroll",
+                            marginBottom: 50,
                         }}>
+                        
                            
                             {
                                 this.props.children
@@ -219,14 +222,13 @@ class Layout extends React.Component{
                                     <br/>
                                     </div>
                             }
-                        </div>
                     </div>
                     {/* <!-- Hero footer: will stick at the bottom --> */}
-                    <div className="hero-foot">
+                    {/* <div className="hero-foot">
                     <div className="is-hidden-mobile">
                         <Footer />
                     </div>
-                    {/* <nav className="tabs is-boxed is-fullwidth is-hidden-tablet">
+                    <nav className="tabs is-boxed is-fullwidth is-hidden-tablet">
                         <div className="container">
                         <ul>
                             <li className="is-active"><a>Overview</a></li>
@@ -238,8 +240,8 @@ class Layout extends React.Component{
                         </ul>
                         
                         </div>
-                    </nav> */}
-                    </div>
+                    </nav>
+                    </div> */}
                 </section>
     
             </React.Fragment>

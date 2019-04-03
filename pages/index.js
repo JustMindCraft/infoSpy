@@ -82,7 +82,7 @@ export default class HomePage extends React.Component {
     }
 
     handleOnScroll = async e => {
-        const { posts, page, pagesize } = this.state;
+        const {  page, pagesize } = this.state;
         const scrollTop = e.target.scrollTop || window.pageYOffset || document.body.scrollTop;
 
         
@@ -134,7 +134,6 @@ export default class HomePage extends React.Component {
                     adding &&  
                     <div className="has-text-centered blue">加载更多中......</div>
                 }
-               
             </Layout>
                     
            
