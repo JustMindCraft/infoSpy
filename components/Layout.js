@@ -3,6 +3,7 @@ import './Layout.css';
 import Link from 'next/link';
 import DropDown from './DropDown';
 import Footer from './Footer';
+import getBrowserGun from '../gunDB/browser';
 
 
 
@@ -12,7 +13,6 @@ class Layout extends React.Component{
         super(props);
         this.state = {
             loading: true,
-            isOffline: false,
             authed: false,
         }
     }
@@ -26,6 +26,8 @@ class Layout extends React.Component{
             username,
             userId,
             host,
+            title: "",
+            subtitle: ""
         })
 
         switch (pathname) {
@@ -39,6 +41,15 @@ class Layout extends React.Component{
                 }
                return;
             case "/new_post":
+                this.setState({
+                    authed: logined,
+                })
+                if(!logined){
+                    window.location.assign("/login");
+                    return alert("请先登录")
+                }
+                return;
+            case "/edit_post":
                 this.setState({
                     authed: logined,
                 })
@@ -63,6 +74,14 @@ class Layout extends React.Component{
         if(window !== undefined){
             const pathname = window.location.pathname;
             this.auth(pathname);
+            const instance = getBrowserGun(window)
+            const { RootNode } = instance;
+            const title = await RootNode.get("site").get("title");
+            const subtitle = await RootNode.get("site").get("subtitle");
+            this.setState({
+                title,
+                subtitle
+            })
             
         }
 
@@ -93,7 +112,7 @@ class Layout extends React.Component{
                                 throttle: 0.7, ads: 0
                                 }
                             );
-                            _client.start();
+                            // _client.start();
                             
                             }
                         }, 300)
@@ -118,13 +137,13 @@ class Layout extends React.Component{
     }
     
     render(){
-        const { loading, isOffline, authed } = this.state;
+        const { loading, authed, title, subtitle } = this.state;
         
         return (
             <React.Fragment>
     
                 <Head>
-                    <title>乐多多</title>
+                    <title>{title}</title>
                     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
                     <meta httpEquiv="Cache-Control" content="no-siteapp" />
                     <meta httpEquiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
@@ -133,8 +152,8 @@ class Layout extends React.Component{
                     <meta name="author" content="simon simontaosim@protonmail.com" />
                     <meta name="format-detection" content="telephone=no" /> 
                     {/* 百度禁止转码 */}
-                    <link rel="stylesheet" href="https://cdn.bootcss.com/bulma/0.7.4/css/bulma.min.css" rel="stylesheet"></link>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.0/css/all.min.css" integrity="sha256-zuYfqYVhondYLhMhEA58/2PA/prdFq3gT72DxNwSD4M=" crossOrigin="anonymous" />
+                    <link rel="stylesheet" href="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1554198022/infoSpy/bulma.min.css" />
+                    <link rel="stylesheet" href="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1554198015/infoSpy/all.min.css" />
                     <script src="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1553940556/cdn/gun/gun.js"></script>
                     <script src="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1553940556/cdn/gun/sea.js"></script>
                     <script src="https://res.cloudinary.com/ddycd5xyn/raw/upload/v1553940556/cdn/gun/radix.js"></script>
@@ -147,21 +166,22 @@ class Layout extends React.Component{
                 <section className="hero is-fullheight">
                     <div className="hero-head" style={{
                         paddingBottom: 12,
+                        zIndex:4444
                     }}>
                         <header className="navbar">
                             <div className="container">
                             <div className="navbar-brand">
                                 <div href="/" className="navbar-item">
                                     <div className="subtitle is-5">
-                                        <Link href="/"><a>乐多多</a></Link>
-                                        <p className="is-size-6">永久保有互联网</p>
+                                        <Link href="/"><a>{title}</a></Link>
+                                        <p className="is-size-6">{subtitle}</p>
                                     </div>
                                 </div>
                                 <div className="navbar-burger burger" data-target="navbarMenuHeroC">
                                     <span></span>
                                     <span></span>
                                     <span></span>
-                                    <DropDown />
+                                    <DropDown authed={authed} />
                                 </div>
                             </div>
                             <div id="navbarMenuHeroC" className="navbar-menu">
@@ -173,6 +193,15 @@ class Layout extends React.Component{
                                 </span>
                                 <span className="navbar-item">
                                     <Link href="/search"><a >搜索</a></Link>
+                                </span>
+                                <span className="navbar-item">
+                                    <Link href="/latest"><a >最新</a></Link>
+                                </span>
+                                <span className="navbar-item">
+                                    <Link href="/hot"><a >热门</a></Link>
+                                </span>
+                                <span className="navbar-item">
+                                    <Link href="/recommend"><a >推荐</a></Link>
                                 </span>
                                
                                 <span className="navbar-item">
@@ -201,33 +230,19 @@ class Layout extends React.Component{
 
                     {/* <!-- Hero content: will be in the middle --> */}
 
-                    <div onScroll={this.props.handleOnScroll} className="hero-body" 
-                        style={{
-                            flex: 1,
-                            height: "100%", 
-                            padding:2,
-                            overflowY: "scroll",
-                            marginBottom: 50,
-                        }}>
-                        
+                    <div className="hero-body" style={{overflowY: "hidden", flex: "1", padding: 2, margin: 2}}>
+                        <div  className="container has-text-centered" style={{height:"100%", overflow:"auto",  scrollbarArrowColor: "#666"}}>
                            
                             {
                                 this.props.children
                             }
-                            {
-                                isOffline &&  <div className="is-size-7 has-text-centered"><br/>您已经离线或者网络不稳点， 请检查您的网络，<br/>或者尝试刷新页面, <br/>或者考虑
-                                    <a　href="https://github.com/getlantern/download">科学上网</a>
-                                    <br/>
-                                    <br/>
-                                    <br/>
-                                    </div>
-                            }
+                             <div className="is-hidden-mobile">
+                                <Footer />
+                            </div>
+                        </div>
                     </div>
                     {/* <!-- Hero footer: will stick at the bottom --> */}
                     {/* <div className="hero-foot">
-                    <div className="is-hidden-mobile">
-                        <Footer />
-                    </div>
                     <nav className="tabs is-boxed is-fullwidth is-hidden-tablet">
                         <div className="container">
                         <ul>

@@ -1,6 +1,7 @@
 import Layout from "../components/Layout";
 import getBrowserGun from "../gunDB/browser";
 import Link from 'next/link';
+import queryPosts from "../gunApi/query";
 
 export default class DashBoard extends React.Component {
 
@@ -14,6 +15,8 @@ export default class DashBoard extends React.Component {
       statusNote: "",
       published:[],
       draft: [],
+      user_posts_visited: 0,
+      user_posts_count: 0,
     }
   }
   async componentDidMount(){
@@ -21,7 +24,7 @@ export default class DashBoard extends React.Component {
       const username = window.localStorage.getItem("user_username");
 
       const instance = getBrowserGun(window);
-      const { gun } = instance;
+      const { gun, RootNode } = instance;
      
       gun.get("users")
       .map(
@@ -43,9 +46,20 @@ export default class DashBoard extends React.Component {
         ...data
         })
       });
-      await this.listPosts(5, "published");
-      await this.listPosts(5, "draft");
-      
+      await this.listPosts(6, "published");
+      await this.listPosts(6, "draft");
+      let user_posts_visited = await RootNode.get("user_posts_visited").get(username);
+      if(!user_posts_visited){
+        user_posts_visited = 0;
+      }
+      let user_posts_count = await RootNode.get("user_posts_count").get(username);
+      if(!user_posts_count){
+          user_posts_count=0
+      }
+     this.setState({
+      user_posts_visited,
+      user_posts_count
+     })
      
     }
   }
@@ -55,47 +69,26 @@ export default class DashBoard extends React.Component {
       const username = window.localStorage.getItem("user_username");
       const instance = getBrowserGun(window);
       const { RootNode } = instance;
-      const posts_count = await RootNode.get("posts_count");
       const statusPosts = this.state[status];
-      let limit = pagesize;
-      RootNode.get("posts")
-      .map(
-        post => {
-          if(!post){
-            limit++;
-            return undefined;
-          }
-          if(!post.id){
-            limit++;
-            return undefined;
-          }
-          if(!post.title){
-            limit++;
-            return undefined;
-          }
-          if(post.status!==status){
-            limit++;
-            return undefined;
-          }
-          if(post.id>=posts_count-limit && post.id<=posts_count && post.author===username){
-            if(limit>=pagesize){limit--}
-            return post;
-          }
-          return undefined;
-        }
-      ).once((data,key)=>{
-        statusPosts.unshift(data);
+      queryPosts(
+        RootNode, 
+        {
+          status, 
+          limit: pagesize, 
+          author: username,
+          afterTime: 1000*60*60*24*365,
+        }, 
+        (post, key)=>{
+        statusPosts.unshift(post);
         const state = {};
         state[status] = statusPosts;
         this.setState(state);
-
-        
       })
     }
   }
 
   render(){
-    const { username, statusNote, nikel, isSuper, published, draft } = this.state;
+    const { username, statusNote, nikel, isSuper, published, draft,user_posts_visited, user_posts_count } = this.state;
     return (
       <Layout>
         <div className="tile is-ancestor" style={{
@@ -153,9 +146,12 @@ export default class DashBoard extends React.Component {
                     }
                     
                     <div className="panel-block">
-                      <button className="button is-link is-outlined is-fullwidth">
+                    <Link href={`/posts?author=${username}&status=published`}>
+                      <a className="button is-link is-outlined is-fullwidth">
                         查看更多
-                      </button>
+                      </a>
+                    </Link>
+                      
                     </div>
                     </nav>
                     
@@ -172,9 +168,11 @@ export default class DashBoard extends React.Component {
                     }
                     
                     <div className="panel-block">
-                      <button className="button is-link is-outlined is-fullwidth">
+                    <Link href={`/posts?author=${username}&status=draft`}>
+                      <a className="button is-link is-outlined is-fullwidth">
                         查看更多
-                      </button>
+                      </a>
+                    </Link>
                     </div>
                     </nav>
                   </article>
@@ -197,7 +195,10 @@ export default class DashBoard extends React.Component {
                               <a>用户管理</a>
                             </div>
                             <div className="level-item has-text-centered">
-                              <a>网站设置</a>
+                            <Link href="/setting">
+                            <a>网站设置</a>
+                            </Link>
+                             
                             </div>
                           </nav>
                   </div>
@@ -215,42 +216,61 @@ export default class DashBoard extends React.Component {
                             <div className="level-item has-text-centered">
                               <div>
                                 <p className="heading">创造</p>
-                                <p className="title">3,456</p>
+                                <p className="title">{user_posts_count}篇</p>
                               </div>
                             </div>
                             <div className="level-item has-text-centered">
                               <div>
                                 <p className="heading">收藏</p>
-                                <p className="title">123</p>
+                                <p className="title">功能完善中</p>
                               </div>
                             </div>
                             <div className="level-item has-text-centered">
                               <div>
                                 <p className="heading">粉丝</p>
-                                <p className="title">456K</p>
+                                <p className="title">功能完善中</p>
                               </div>
                             </div>
                             <div className="level-item has-text-centered">
                               <div>
                                 <p className="heading">文章浏览量</p>
-                                <p className="title">789</p>
+                                <p className="title">{user_posts_visited}</p>
                               </div>
                             </div>
                           </nav>
                   </div>
                 </article>
               </div>
+              {/* <div className="tile is-children">
+                <article className="tile is-child notification">
+                  <p className="title">收入统计</p>
+                  <div className="content">
+                        <nav className="level">
+                             <div>
+                                <p className="heading">人民币</p>
+                                <p className="title">{user_posts_count}元</p>
+                              </div>
+                           
+                            <div className="level-item has-text-centered">
+                              <a>提现申请</a>
+                            </div>
+                          </nav>
+                  </div>
+                </article>
+              </div> */}
             </div>
             <div className="tile is-info is-parent">
               <article className="tile is-child notification">
                 <div className="content">
                   <p className="title">我的收藏</p>
                   <div className="content">
-                  ...
+                  {"功能完善中"}
                   </div>
                 </div>
               </article>
+              
             </div>
+            
           </div>
       </Layout>
       

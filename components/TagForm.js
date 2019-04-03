@@ -35,6 +35,22 @@ class TagForm extends React.Component {
             }
         )
     }
+    componentWillReceiveProps(nextProps){
+        console.log(this.props, nextProps);
+        
+        if(this.props.tags.length!==nextProps.tags.length){
+            this.setState({
+                tags: nextProps.tags
+            })
+        }
+        
+    }
+
+    componentDidMount(){
+        // this.setState({
+        //     tags: this.props.tags
+        // })
+    }
     handleDelete = (e, index) => {
         e.preventDefault();
         e.stopPropagation();
@@ -44,12 +60,13 @@ class TagForm extends React.Component {
             ...tags.slice(0,index),
             ...tags.slice(index+1, tags.length)
         ]
-        this.setState({
-            tags: changeTags,
-        })
         if(this.props.getTags){
             this.props.getTags(tags);
         }
+        this.setState({
+            tags: changeTags,
+        })
+        
         
     }
     render(){
