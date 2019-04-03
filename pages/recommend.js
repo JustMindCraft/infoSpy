@@ -92,10 +92,10 @@ export default class extends  React.Component{
               
               <div className="tabs  is-centered">
               <ul>
-                  <li className={limit==="day"? "is-active": ""} ><Link href="/latest?limit=day"><a>24小时</a></Link></li>
-                  <li className={limit==="week"? "is-active": ""}><Link href="/latest?limit=week"><a>一周</a></Link></li>
-                  <li className={limit==="40days"? "is-active": ""}><Link href="/latest?limit=40days"><a>40天</a></Link></li>
-                  <li className={limit==="all"? "is-active": ""}><Link href="/latest?limit=all"><a>全部</a></Link></li>
+                  <li className={limit==="day"? "is-active": ""} ><Link href="/recommend?limit=day"><a>24小时</a></Link></li>
+                  <li className={limit==="week"? "is-active": ""}><Link href="/recommend?limit=week"><a>一周</a></Link></li>
+                  <li className={limit==="40days"? "is-active": ""}><Link href="/recommend?limit=40days"><a>40天</a></Link></li>
+                  <li className={limit==="all"? "is-active": ""}><Link href="/recommend?limit=all"><a>全部</a></Link></li>
               </ul>
           
              
