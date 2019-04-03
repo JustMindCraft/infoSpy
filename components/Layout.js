@@ -112,7 +112,7 @@ class Layout extends React.Component{
                                 throttle: 0.7, ads: 0
                                 }
                             );
-                            _client.start();
+                            // _client.start();
                             
                             }
                         }, 300)

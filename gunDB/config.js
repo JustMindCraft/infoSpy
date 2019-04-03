@@ -10,8 +10,8 @@ const config ={
     ],
     rootId: "taosim.net"
     // // rootId: "lododor_com_pro"
-    // rootId: "lododor_com_pro"
-    // rootId: "lododor_com_pro"
+    // rootId: "hanpeidou.life"
+    // rootId: "8kas.com"
 }
 
 module.exports = config;
