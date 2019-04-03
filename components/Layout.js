@@ -230,8 +230,8 @@ class Layout extends React.Component{
 
                     {/* <!-- Hero content: will be in the middle --> */}
 
-                    <div className="hero-body" style={{overflowY: "hidden", flex: "1", padding: 2, margin: 2}}>
-                        <div  className="container has-text-centered" style={{height:"100%", overflow:"auto",  scrollbarArrowColor: "#666"}}>
+                    <div style={{overflowY: "auto", height:"100%", width: "100%", flex: "1", margin: 1}}>
+                        <div  className="container has-text-centered">
                            
                             {
                                 this.props.children
