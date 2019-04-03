@@ -242,7 +242,7 @@ class Layout extends React.Component{
                         </div>
                     </div>
                     {/* <!-- Hero footer: will stick at the bottom --> */}
-                    <div className="hero-foot">
+                    {/* <div className="hero-foot">
                     <nav className="tabs is-boxed is-fullwidth is-hidden-tablet">
                         <div className="container">
                         <ul>
@@ -256,7 +256,7 @@ class Layout extends React.Component{
                         
                         </div>
                     </nav>
-                    </div>
+                    </div> */}
                 </section>
     
             </React.Fragment>
