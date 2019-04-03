@@ -14,6 +14,8 @@ module.exports = withCSS({
       '/reg': { page: '/reg' },
       '/dashboard': { page: '/dashboard' },
       '/new_post': { page: '/new_post' },
+      '/edit_post': { page: '/edit_post' },
+      '/setting': { page: '/setting' },
     }
   }
 });

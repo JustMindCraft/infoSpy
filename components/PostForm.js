@@ -13,12 +13,14 @@ class PostForm extends React.Component {
             tags: [],
             title: "",
             body: "",
-            id: null,
+            uuid: null,
             cover: "https://bulma.io/images/placeholders/480x480.png",
             imageUploading: false,
             imageName: "",
             saving: false,
             recommend: false,
+            createdAt: 0,
+            updatedAt: 0,
         }
     }
     getTags = (tags) => {
@@ -37,24 +39,24 @@ class PostForm extends React.Component {
         if(window){
             const instance = getBrowserGun(window);
             const { RootNode } = instance;
-            RootNode.get("posts").map(
-                post => {
-                    if(!post){
-                        return false;
-                    }
-                    if(post.title==="test12"){
-                        return post;
-                    }
-                    return undefined;
-                }
-            ).once( async (data,key)=>{
-                console.log(data,key);
-                const tagCount = await  RootNode.get("post_tag_count/"+data.id);
-                console.log(tagCount);
-                
-                
+            console.log(this.props.post);
+            
+            
+        }
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(this.props!==nextProps){
+            console.log(next);
+            
+            this.setState({
+                ...nextProps.post,
+                tags: nextProps.post.tags.split(",")
             })
         }
+        
+       
+        
     }
 
    
@@ -151,25 +153,42 @@ class PostForm extends React.Component {
             if(!posts_count){
                 posts_count=0
             }
-            let id = posts_count+1;
+            let uuid = require("uuid/v4")();
+
             let createdAt = now();
-            if(post.id){
-                //更新操作
-                id = post.id;
-                createdAt = post.createdAt;
-            }
-            this.setState({
-                id,
-            })
             
-            RootNode.get("posts").get(id).put({...post, id, createdAt, updatedAt: now()}, ack=>{
+            this.setState({
+                uuid,
+            })
+
+            //统计用户发文数量
+            let user_posts_count = await RootNode.get("user_posts_count").get(post.author);
+            if(!user_posts_count){
+                user_posts_count=0
+            }
+            if(post.uuid){
+                //更新操作
+                uuid = post.uuid;
+                createdAt = post.createdAt;
+            }else{
+                user_posts_count = user_posts_count+1
+            }
+
+           
+            
+            RootNode.get("posts").get(uuid).put({...post, uuid, createdAt, id:posts_count+1, updatedAt: now(), tags: tags.toString()},async ack=>{
+                console.log(ack);
+                
                 if(ack.err){
                     this.setState({
                         saving: false,
                     })
                     return alert("存储文章失败，检查网络，再重试");
                 }
-                RootNode.get("posts_count").put(id+1, async ack=>{
+                await RootNode.get("user_posts_count").get(post.author).put(user_posts_count);
+                RootNode.get("posts_count").put(posts_count+1, async ack=>{
+                    console.log(ack);
+                    
                     if(ack.err){
                         this.setState({
                             saving: false,
@@ -187,12 +206,12 @@ class PostForm extends React.Component {
                         const tagId = tags_count+1;
                         await  RootNode.get("post_tags").get(tagId).put({
                             tag,
-                            postId: id,
+                            postId: uuid,
                             tagId,
                         })
-                        await RootNode.get("tag_posts").get(id).put({
+                        await RootNode.get("tag_posts").get(uuid).put({
                             tag,
-                            postId: id,
+                            postId: uuid,
                             tagId,
                         })
                         if(!(await RootNode.get("tag_exists/"+tag))){
@@ -207,7 +226,7 @@ class PostForm extends React.Component {
                         }
                         await RootNode.get("tag_post_count/"+tag).put(tag_post_count+1);
                     }
-                    await RootNode.get("post_tag_count/"+id).put(tags.length);
+                    await RootNode.get("post_tag_count/"+uuid).put(tags.length);
                     
                     this.setState({
                         saving: false,
@@ -223,14 +242,16 @@ class PostForm extends React.Component {
         
     }
     getPostData = () => {
-        const { title, cover,  body, id, recommend }  = this.state;
+        const { title, cover,  body, uuid, recommend, createdAt, updatedAt }  = this.state;
         const post = {};
         post.title = title;
         post.cover = cover;
         post.body = body;
-        post.id = id;
+        post.uuid = uuid;
         post.author=window.localStorage.getItem("user_username");
         post.recommend = recommend;
+        post.createdAt = createdAt;
+        post.updatedAt = updatedAt;
         return post;
     }
     publish = () => {
@@ -272,10 +293,10 @@ class PostForm extends React.Component {
   
 
     render(){
-        const { title, imageName, cover, imageUploading,  body, saving, recommend }  = this.state;
+        const { title, imageName, cover, imageUploading,  body, saving, recommend, tags }  = this.state;
         
         return (
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} >
                      <div className="field section">
                         <label className="label">标题</label>
                         <div className="control">
@@ -308,7 +329,7 @@ class PostForm extends React.Component {
                     </figure>
                     </div>
                    
-                    <TagForm  getTags={this.getTags}/>
+                    <TagForm  getTags={this.getTags} tags={tags}/>
                     <div className="field section">
                     <div className="control">
                         <label className="radio">
@@ -329,12 +350,15 @@ class PostForm extends React.Component {
                         <br/>
                         <br/>
                         <br/>
+                        <br/>
+                        <br/>
+                        <br/>
                     </div>
                     </div>
 
                     <div className="field is-grouped section" style={{
                         position: 'fixed',
-                        bottom: "15%",
+                        bottom: -20,
                         zIndex: 9988,
                     }}>
                    

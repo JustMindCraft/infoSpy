@@ -12,7 +12,6 @@
     "@zeit/next-css": "^1.0.1",
     "browserfs": "^1.4.3",
     "css-modules-require-hook": "^4.2.3",
-    "gun": "^0.2019.323",
     "moment": "^2.24.0",
     "next": "^8.0.3",
     "puppeteer": "^1.13.0",

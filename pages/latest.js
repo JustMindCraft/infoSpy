@@ -41,7 +41,7 @@ export default class extends  React.Component{
                             limit,
                             afterTime: 1000*60*60*24,
                             loading: false,
-                            title: "最热24小时"
+                            title: "最新24小时"
                         })
                     break;
                     case "week":
@@ -49,7 +49,7 @@ export default class extends  React.Component{
                         limit,
                          afterTime: 1000*60*60*24*7,
                          loading: false,
-                         title: "最热一周"
+                         title: "最新一周"
 
                     })
                     break;
@@ -58,16 +58,16 @@ export default class extends  React.Component{
                         limit,
                          afterTime: 1000*60*60*24*40,
                          loading: false,
-                         title: "最热40日"
+                         title: "最新40日"
 
                     })
                     break;
-                    case "all":``
+                    case "all":
                     this.setState({
                         limit,
                          afterTime: (new Date()).getTime(),
                          loading: false,
-                         title: "全部最热"
+                         title: "全部"
 
                     })
                     break;
@@ -92,10 +92,10 @@ export default class extends  React.Component{
               
               <div className="tabs  is-centered">
               <ul>
-                  <li className={limit==="day"? "is-active": ""} ><Link href="/hot?limit=day"><a>24小时</a></Link></li>
-                  <li className={limit==="week"? "is-active": ""}><Link href="/hot?limit=week"><a>一周</a></Link></li>
-                  <li className={limit==="40days"? "is-active": ""}><Link href="/hot?limit=40days"><a>40天</a></Link></li>
-                  <li className={limit==="all"? "is-active": ""}><Link href="/hot?limit=all"><a>全部</a></Link></li>
+                  <li className={limit==="day"? "is-active": ""} ><Link href="/latest?limit=day"><a>24小时</a></Link></li>
+                  <li className={limit==="week"? "is-active": ""}><Link href="/latest?limit=week"><a>一周</a></Link></li>
+                  <li className={limit==="40days"? "is-active": ""}><Link href="/latest?limit=40days"><a>40天</a></Link></li>
+                  <li className={limit==="all"? "is-active": ""}><Link href="/latest?limit=all"><a>一年</a></Link></li>
               </ul>
           
              
@@ -107,9 +107,9 @@ export default class extends  React.Component{
                   <React.Fragment>
                         <PostsBlock query={{
                                     status: "published",
-                                    hot: 3,
                                     afterTime: afterTime
                     }}  title={title}/>
+                    <a className="button is-info is-fullwidth  is-outlined">获取更早的......</a>
                   </React.Fragment>
               }
              

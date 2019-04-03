@@ -1,166 +1,157 @@
 import Layout from "../components/Layout";
-import PostList from "../components/PostList";
-import Loader from "../components/Loader";
-import getBrowserGun from "../gunDB/browser";
+import PostsBlock from "../components/index/PostsBlock";
+import Link from 'next/link';
 
-class Posts extends React.Component {
-
+export default class extends  React.Component{
     constructor(props){
         super(props);
         this.state = {
-            posts: [],
+            afterTime: 1000*60*60*24,
+            limit: "day",
             loading: true,
-            adding: false,
-            tag: "",
-            page: 1,
-            pagesize: 38
+            title: "最新24小时",
+            status: "published",
+            author: "",
         }
     }
-
-    getTag(){
-        const queryString = require('query-string');
-        const parsed = queryString.parse(window.location.search);
-        const tag = parsed.tag;
-        return tag;
-    }
-
-    async componentDidMount(){
-        const tag = this.getTag();
+    changeAfterTime = (afterTime, limit)=>{
         this.setState({
-            posts: [],
-            loading: true,
-            adding: false,
-            tag,
-            page: 1,
-            proccess:false,
-            changed: false,
-
+            afterTime,
+            limit
         })
-        console.log("didmount");
-        
-        await this.getTagPosts(1, 38, tag);
-        
     }
-
-    async componentWillReceiveProps(nextProps){
-        if(this.props!== nextProps){
+    componentWillReceiveProps(nextProps){
+        if(this.props.url.query.limit!== nextProps.url.query.limit){
             window.location.reload();
         }
-    }
-
-    getTagPosts = async (page, pagesize, tag) => {
-
-        const instance = getBrowserGun(window)
-        const { RootNode } = instance;
         
-        const tag_posts_count = await RootNode.get("tag_posts_count/"+tag);
-        const { posts } = this.state;
-        this.setState({
-            proccess: true,
-        })
-        for (let index = 0; index < pagesize; index++) {
-           
-            const tagIndex =  tag_posts_count-((page-1)*pagesize)-index;
-            const postId = await RootNode.get("tag_posts/"+"/"+tag+"/"+tagIndex)
-            const post = await RootNode.get("posts/"+postId)
-            if(!posts){
-                continue;
-            }
-        
-            if(post && post.id){
-                posts.push(post);
-            }
-            this.setState({
-                posts,
-                adding: false,
-                loading: false,
-                tag,
-               
-            })
-        }
-        this.setState({
-            proccess: false,
-        })
         
     }
-    componentWillMount(){
-        console.log("leave");
-        this.setState(
-            {
-                posts: [],
-                loading: true,
-                adding: false,
-                tag: "",
-                page: 1,
-                proccess:false,
-                changed: false,
-    
-            }
-        )
-        
-    }
-    handleOnScroll = async e => {
-        const { page, pagesize } = this.state;
-        const scrollTop = e.target.scrollTop || window.pageYOffset || document.body.scrollTop;
-        
-        if(e.target.scrollHeight == e.target.clientHeight + scrollTop ) {
-            this.setState({
-                adding: true,
-            })
-           await this.getTagPosts(page+1, pagesize, this.getTag());
-           return this.setState({
-                adding: false,
-                page: page+1,
+   
 
-            })
-
-        } 
-
-        if(scrollTop===1){
-           this.setState({
-               posts: [],
-               adding: true,
-           })
-           await this.getTagPosts(1,20, this.getTag());
-           return this.setState({
-                adding: false,
-                page: 1,
-             })
+    componentDidMount(){
+        if(window){
+            const queryString = require('query-string');
+            const parsed = queryString.parse(window.location.search);
+            console.log(parsed);
             
-        }   
-        
-        
-    }
+            let limit  = parsed.limit;
+            let status = parsed.status;
 
-    render(){
-        const { posts, tag, loading, adding, changed } = this.state;
-        if(changed){
-            return(
-                <Layout>
-                    <Loader />
-                </Layout>
-            ) 
-                
+            const author = parsed.author;
+            if(author){
+                const host = window.localStorage.getItem("user_host");
+                const userId = window.localStorage.getItem("user_id");
+                const username = window.localStorage.getItem("user_username");
+                const logined = host && username && userId;
+                if(!logined){
+                    window.location.assign("/login");
+                    return alert("请先登录")
+                }
+            }
+            this.setState({
+                author,
+            })
+           
+            
+            
+            let statusTitle = "";
+            if(!status){
+                status = "published";
+                statusTitle = "";
+                this.setState({
+                    status,
+                })
+            }else{
+                statusTitle = status==="published"? "":"草稿";
+
+                this.setState({
+                    status
+                })
+            }
+            if(!limit){
+                limit="day"
+            }
+            switch (limit) {
+                    case "day":
+                        this.setState({
+                            limit,
+                            afterTime: 1000*60*60*24,
+                            loading: false,
+                            title: author+"最新24小时"+statusTitle
+                        })
+                    break;
+                    case "week":
+                    this.setState({
+                        limit,
+                         afterTime: 1000*60*60*24*7,
+                         loading: false,
+                         title: author+"最新一周"+statusTitle
+
+                    })
+                    break;
+                    case "40days":
+                    this.setState({
+                        limit,
+                         afterTime: 1000*60*60*24*40,
+                         loading: false,
+                         title: author+"最新40日"+statusTitle
+
+                    })
+                    break;
+                    case "all":
+                    this.setState({
+                        limit,
+                         afterTime: (new Date()).getTime(),
+                         loading: false,
+                         title: "全部"+statusTitle
+
+                    })
+                    break;
+            
+                default:
+                    break;
+            }
+            this.setState({
+                limit,
+            })
+            
+            
         }
-        return (
-            <Layout>
-                <h1 className="title">"{tag}"：</h1>
-                {
-                    adding &&  
-                    <div className="has-text-centered blue">加载更多中......</div>
-                }
-                {
-                    loading ?  <Loader /> :
-                    <PostList list={posts} handleOnScroll={this.handleOnScroll} />
-                }
-                {
-                    adding &&  
-                    <div className="has-text-centered blue">加载更多中......</div>
-                }
-               
-            </Layout>
-        )
     }
-}
+    render(){
 
-export default Posts;
+        const { afterTime, limit, loading, title, status, author } = this.state;
+        
+        return (
+
+            <Layout>
+              
+              <div className="tabs  is-centered">
+              <ul>
+                  <li className={limit==="day"? "is-active": ""} ><Link href={`/posts?author=${author}&limit=day&status=${status}`}><a>24小时</a></Link></li>
+                  <li className={limit==="week"? "is-active": ""}><Link href={`/posts?author=${author}&limit=week&status=${status}`}><a>一周</a></Link></li>
+                  <li className={limit==="40days"? "is-active": ""}><Link href={`/posts?author=${author}&limit=40days&status=${status}`}><a>40天</a></Link></li>
+                  <li className={limit==="all"? "is-active": ""}><Link href={`/posts?author=${author}&limit=all&status=${status}`}><a>一年</a></Link></li>
+              </ul>
+          
+             
+          
+          
+              </div>
+              {     
+                  !loading &&
+                  <React.Fragment>
+                        <PostsBlock query={{
+                                    status:  status,
+                                    afterTime: afterTime,
+                                    author,
+                    }}  title={title}/>
+                  </React.Fragment>
+              }
+             
+            </Layout>
+            
+          )
+    } 
+} 

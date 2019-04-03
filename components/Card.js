@@ -42,7 +42,7 @@ export default class Card extends React.Component{
 
     render(){
         const {props} = this;
-        const { visited, tags } = this.state;
+        const { tags } = this.state;
         return (
             <div className="card" style={{
                 maxWidth: 365,
@@ -90,7 +90,7 @@ export default class Card extends React.Component{
                                 )
                             })}
                         </div>
-                        <span>阅读量({visited})</span>
+                        <span>阅读量({props.visited? props.visited: 0})</span>
                     </div>
                 </div>
             </div>

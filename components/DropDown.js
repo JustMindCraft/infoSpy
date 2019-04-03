@@ -8,10 +8,22 @@ const DownMenuList = [
     {
         label: "搜索",
         href: "/search"
+    },
+    {
+        label: "热门",
+        href: "/hot"
+    },
+    {
+        label: "推荐",
+        href: "/recommend"
+    },
+    {
+        label: "最新",
+        href: "/latest"
     }
 ]
 
-export default () => {
+export default (props) => {
    
     return (
 
@@ -27,7 +39,8 @@ export default () => {
             </div>
             <div className="dropdown-menu" id="dropdown-menu" role="menu">
                 <div className="dropdown-content" style={{
-                    textAlign: "center"
+                    textAlign: "center",
+                    zIndex: 99999,
                 }}>
                 {
                     DownMenuList.map((item,index)=>
@@ -41,13 +54,13 @@ export default () => {
                    
                     <hr className="dropdown-divider" />
                     <div className="dropdown-item">
-                    <Link href="/login"  >
-                        <a>登录</a>
+                    <Link href={!props.authed ? "/login": "/dashboard"}  >
+                        <a>{!props.authed? "登录": "面板"}</a>
                     </Link>
                     </div>
                     <div className="dropdown-item">
-                    <Link href="/reg" >
-                        <a>注册</a>
+                    <Link href={!props.authed ? "/reg": "/logout"} >
+                        <a>{!props.authed? "注册": "登出"}</a>
                     </Link>
                     </div>
                    
