@@ -165,7 +165,6 @@ class Layout extends React.Component{
                 <noscript>您必须开启javasript脚本才能够运行本应用</noscript>
                 <section className="hero is-fullheight">
                     <div className="hero-head" style={{
-                        paddingBottom: 12,
                         zIndex:4444
                     }}>
                         <header className="navbar">
@@ -230,7 +229,7 @@ class Layout extends React.Component{
 
                     {/* <!-- Hero content: will be in the middle --> */}
 
-                    <div style={{overflowY: "auto", height:"100%", width: "100%", flex: "1", margin: 1}}>
+                    <div style={{overflowY: "auto", height:"90%", width: "100%", flex: "1", margin: 1}}>
                         <div  className="container has-text-centered">
                            
                             {

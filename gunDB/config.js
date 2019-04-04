@@ -8,10 +8,7 @@ const config ={
         // "http://gun2.hanpeidou.life/gun"
         // 测试开发用http
     ],
-    // rootId: "taosim.net"
-    // // rootId: "lododor_com_pro"
-    rootId: "hanpeidou.life"
-    // rootId: "8kas.com"
+   
 }
 
 module.exports = config;

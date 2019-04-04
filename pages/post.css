@@ -1,0 +1,19 @@
+
+.article > iframe {
+    display: block;
+    min-width: 300px;
+    width: 90%;
+    min-height: 300px;
+}
+.article p {
+    word-wrap: break-all;
+    word-break: break-all;
+    width: 100% !important;
+}
+
+.article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    widows: 100% !important;
+}

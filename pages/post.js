@@ -7,6 +7,8 @@ import Link from 'next/link';
 import getBrowserGun from "../gunDB/browser";
 import dynamic from 'next/dynamic';
 
+import './post.css'
+
 dynamic(
   () => import('../components/TextEditor.css'),
   {
@@ -174,7 +176,7 @@ export default  class PostPage extends React.Component {
                   }
                 </h2>
               { bodyLoading && <progress className="progress is-large is-info" max="100">60%</progress>}
-              <article className="article" style={{textAlign: "left", fontSize: "27px", height: 1000}}>
+              <article className="article" style={{textAlign: "left", fontSize: "27px", height: "100%"}}>
                 {body? renderHTML(body): renderHTML("<span></span>")}
               </article>
               <div>阅读量({visited})</div>
