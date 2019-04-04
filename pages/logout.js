@@ -10,7 +10,7 @@ export default class Logout extends React.Component {
             window.localStorage.removeItem("user_is_super");          
             window.localStorage.removeItem("user_username"); 
             setTimeout(() => {
-                window.location.assign("login");
+                window.location.replace("/login");
             }, 1234);
         }
        
