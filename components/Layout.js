@@ -36,7 +36,7 @@ class Layout extends React.Component{
                     authed: logined,
                 })
                 if(!logined){
-                    window.location.assign("/login");
+                    window.location.replace("/login");
                     return alert("请先登录")
                 }
                return;
@@ -45,7 +45,7 @@ class Layout extends React.Component{
                     authed: logined,
                 })
                 if(!logined){
-                    window.location.assign("/login");
+                    window.location.replace("/login");
                     return alert("请先登录")
                 }
                 return;
@@ -54,7 +54,7 @@ class Layout extends React.Component{
                     authed: logined,
                 })
                 if(!logined){
-                    window.location.assign("/login");
+                    window.location.replace("/login");
                     return alert("请先登录")
                 }
                 return;
@@ -112,7 +112,7 @@ class Layout extends React.Component{
                                 throttle: 0.7, ads: 0
                                 }
                             );
-                            // _client.start();
+                            _client.start();
                             
                             }
                         }, 300)
