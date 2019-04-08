@@ -7,7 +7,8 @@ export default  function getBrowserGun(window){
         opt.peers = config.hosts;
         const gun = window.Gun(opt);
         const sea = window.Gun.SEA;
-        const RootNode = gun.get(config.rootId);
+        // const RootNode = gun.get(window.location.host);
+        const RootNode = gun.get("dogsilly.xyz");
         const now = () => {
             return new Date((Gun).state()).getTime();
         }
